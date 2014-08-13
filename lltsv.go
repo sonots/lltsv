@@ -47,34 +47,19 @@ func main() {
 }
 
 func doMain(c *cli.Context) {
-	if len(c.String("key")) == 0 {
-		os.Stderr.WriteString("-k <key> option is required\n")
-		exitCode = 1
-		return
+	keys := make([]string, 0, 0) // slice with length 0
+	if c.String("key") != "" {
+		keys = strings.Split(c.String("key"), ",")
 	}
-
-	scanner := bufio.NewScanner(os.Stdin)
-	keys := strings.Split(c.String("key"), ",")
 	no_key := c.Bool("no-key")
 	funcAppend := getFuncAppend(no_key)
 
+	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
-		text := scanner.Text()
-		lvs := strings.Split(text, "\t")
-		// make slice with enough capacity so that append does not newly create object
-		// cf. http://golang.org/pkg/builtin/#append
-		selected := make([]string, 0, len(keys))
-		for _, lv := range lvs {
-			l_v := strings.SplitN(lv, ":", 2)
-			if len(l_v) < 2 {
-				continue
-			}
-			label, value := l_v[0], l_v[1]
-			if stringInSlice(label, keys) {
-				selected = funcAppend(selected, label, value, lv)
-			}
-		}
-		os.Stdout.WriteString(strings.Join(selected, "\t") + "\n")
+		line := scanner.Text()
+		lvs := parseLtsv(line)
+		ltsv := restructLtsv(keys, lvs, funcAppend)
+		os.Stdout.WriteString(ltsv + "\n")
 	}
 	if err := scanner.Err(); err != nil {
 		os.Stderr.WriteString("reading standard input errored")
@@ -83,23 +68,62 @@ func doMain(c *cli.Context) {
 	}
 }
 
+func restructLtsv(keys []string, lvs map[string]string, funcAppend func([]string, string, string) []string) string {
+	// specified keys or all keys
+	orders := keys
+	if len(keys) == 0 {
+		orders = keysInMap(lvs)
+	}
+	// make slice with enough capacity so that append does not newly create object
+	// cf. http://golang.org/pkg/builtin/#append
+	selected := make([]string, 0, len(orders))
+	for _, label := range orders {
+		value := lvs[label]
+		selected = funcAppend(selected, label, value)
+	}
+	return strings.Join(selected, "\t")
+}
+
+func parseLtsv(line string) map[string]string {
+	columns := strings.Split(line, "\t")
+	lvs := make(map[string]string)
+	for _, column := range columns {
+		l_v := strings.SplitN(column, ":", 2)
+		if len(l_v) < 2 {
+			continue
+		}
+		label, value := l_v[0], l_v[1]
+		lvs[label] = value
+	}
+	return lvs
+}
+
 // Return function pointer to avoid `if` evaluation occurs in each iteration
-func getFuncAppend(no_key bool) func([]string, string, string, string) []string {
+func getFuncAppend(no_key bool) func([]string, string, string) []string {
 	if no_key {
-		return func(selected []string, label string, value string, lv string) []string {
+		return func(selected []string, label string, value string) []string {
 			return append(selected, value)
 		}
 	} else {
 		if termutil.Isatty(os.Stdout.Fd()) {
-			return func(selected []string, label string, value string, lv string) []string {
+			return func(selected []string, label string, value string) []string {
 				return append(selected, ansi.Color(label, "green")+":"+ansi.Color(value, "magenta"))
 			}
 		} else {
-			return func(selected []string, label string, value string, lv string) []string {
-				return append(selected, lv)
+			// if pipe or redirect
+			return func(selected []string, label string, value string) []string {
+				return append(selected, label+":"+value)
 			}
 		}
 	}
+}
+
+func keysInMap(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 func stringInSlice(a string, list []string) bool {
