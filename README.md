@@ -120,3 +120,5 @@ See [LICENSE](./LICENSE)
 ## Special Thanks
 
 This is a golang fork of perl version created by [id:key_amb](http://keyamb.hatenablog.com/). Thanks!
+
+MEMO: golang version was 5x faster than perl version
