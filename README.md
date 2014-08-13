@@ -80,7 +80,6 @@ GLOBAL OPTIONS:
 ## ToDo
 
 1. write tests
-2. Read from a file (not only from STDIN)
 
 ## Build
 
