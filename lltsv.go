@@ -25,7 +25,7 @@ func main() {
 	The output is colorized as default when you outputs to a terminal. 
 	The coloring is disabled if you pipe or redirect outputs.
 
-	Example2 $ "foo:aaa\tbar:bbb" | lltsv -k foo,bar -K
+	Example2 $ echo "foo:aaa\tbar:bbb" | lltsv -k foo,bar -K
 	aaa       bbb
 
 	You may eliminate labels with "-K" option`
