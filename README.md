@@ -98,8 +98,7 @@ go get github.com/mitchellh/gox
 gox -build-toolchain # only first time
 go get github.com/tcnksm/ghr
 
-cd $GOPATH/src/github.com/sonots/lltsv/pkg
-gox ../...
+mkdir -p pkg && cd pkg && gox ../...
 ghr <tag> .
 ```
 
