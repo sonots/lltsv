@@ -1,3 +1,9 @@
+## 0.3.0 (2014/11/21)
+
+Enhancements:
+
+* Read from multiple files
+
 ## 0.2.0 (2014/08/13)
 
 Enhancements:

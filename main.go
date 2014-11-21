@@ -25,7 +25,11 @@ func main() {
 	Example2 $ echo "foo:aaa\tbar:bbb" | lltsv -k foo,bar -K
 	aaa       bbb
 
-	You may eliminate labels with "-K" option.
+	Eliminate labels with "-K" option.
+
+	Example3 $ lltsv -k foo,bar -K file*.log
+
+	Specify input files as arguments.
 
 	Homepage: https://github.com/sonots/lltsv`
 	app.Author = "sonots"

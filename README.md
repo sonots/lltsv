@@ -23,7 +23,15 @@ $ echo "foo:aaa\tbar:bbb\tbaz:ccc" | lltsv -k foo,bar -K
 aaa       bbb
 ```
 
-You may eliminate labels with `-K` option. 
+Eliminate labels with `-K` option.
+
+Example 3:
+
+```bash
+$ lltsv -k foo,bar -K file*.log
+```
+
+Specify input files as arguments.
 
 **How Useful?**
 
@@ -44,7 +52,7 @@ Executable binaries are available at [releases](https://github.com/sonots/lltsv/
 For example, for linux x86_64, 
 
 ```bash
-$ wget https://github.com/sonots/lltsv/releases/download/v0.1.0/lltsv_linux_amd64 -O lltsv
+$ wget https://github.com/sonots/lltsv/releases/download/v0.3.0/lltsv_linux_amd64 -O lltsv
 $ chmod a+x lltsv
 ```
 
@@ -65,7 +73,7 @@ USAGE:
    lltsv [global options] command [command options] [arguments...]
 
 VERSION:
-   0.1.0
+   0.3.0
 
 COMMANDS:
    help, h      Shows a list of commands or help for one command
