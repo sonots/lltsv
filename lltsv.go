@@ -13,6 +13,8 @@ import (
 // os.Exit forcely kills process, so let me share this global variable to terminate at the last
 var exitCode = 0
 
+type tFuncAppend func([]string, string, string) []string
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "lltsv"
@@ -74,7 +76,7 @@ func doMain(c *cli.Context) {
 	}
 }
 
-func scanAndWrite(file *os.File, keys []string, funcAppend func([]string, string, string) []string) {
+func scanAndWrite(file *os.File, keys []string, funcAppend tFuncAppend) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -89,7 +91,7 @@ func scanAndWrite(file *os.File, keys []string, funcAppend func([]string, string
 	}
 }
 
-func restructLtsv(keys []string, lvs map[string]string, funcAppend func([]string, string, string) []string) string {
+func restructLtsv(keys []string, lvs map[string]string, funcAppend tFuncAppend) string {
 	// specified keys or all keys
 	orders := keys
 	if len(keys) == 0 {
