@@ -34,7 +34,7 @@ func (lltsv *Lltsv) scanAndWrite(file *os.File) {
 		os.Stdout.WriteString(ltsv + "\n")
 	}
 	if err := scanner.Err(); err != nil {
-		os.Stderr.WriteString("reading input errored")
+		os.Stderr.WriteString("reading input errored\n")
 		exitCode = 1
 		return
 	}
@@ -72,7 +72,7 @@ func (lltsv *Lltsv) parseLtsv(line string) map[string]string {
 }
 
 // Return function pointer to avoid `if` evaluation occurs in each iteration
-func getFuncAppend(no_key bool) func([]string, string, string) []string {
+func getFuncAppend(no_key bool) tFuncAppend {
 	if no_key {
 		return func(selected []string, label string, value string) []string {
 			return append(selected, value)

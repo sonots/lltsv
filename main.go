@@ -62,7 +62,7 @@ func doMain(c *cli.Context) {
 		for _, filename := range c.Args() {
 			file, err := os.Open(filename)
 			if err != nil {
-				os.Stderr.WriteString("failed to open and read " + filename)
+				os.Stderr.WriteString("failed to open and read `" + filename + "`.\n")
 				exitCode = 1
 				return
 			}
