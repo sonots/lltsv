@@ -6,95 +6,45 @@ import (
 	"strings"
 
 	"github.com/andrew-d/go-termutil"
-	"github.com/codegangsta/cli"
 	"github.com/mgutz/ansi"
 )
 
-// os.Exit forcely kills process, so let me share this global variable to terminate at the last
-var exitCode = 0
-
 type tFuncAppend func([]string, string, string) []string
 
-func main() {
-	app := cli.NewApp()
-	app.Name = "lltsv"
-	app.Version = Version
-	app.Usage = `List specified keys of LTSV (Labeled Tab Separated Values)
-
-	Example1 $ echo "foo:aaa\tbar:bbb" | lltsv -k foo,bar
-	foo:aaa   bar:bbb
-
-	The output is colorized as default when you outputs to a terminal. 
-	The coloring is disabled if you pipe or redirect outputs.
-
-	Example2 $ echo "foo:aaa\tbar:bbb" | lltsv -k foo,bar -K
-	aaa       bbb
-
-	You may eliminate labels with "-K" option.
-
-	https://github.com/sonots/lltsv`
-	app.Author = "sonots"
-	app.Email = "sonots@gmail.com"
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:  "key, k",
-			Usage: "keys to output (multiple keys separated by ,)",
-		},
-		cli.BoolFlag{
-			Name:  "no-key, K",
-			Usage: "output without keys (and without color)",
-		},
-	}
-	app.Action = doMain
-	app.Run(os.Args)
-	os.Exit(exitCode)
+type Lltsv struct {
+	keys       []string
+	no_key     bool
+	funcAppend tFuncAppend
 }
 
-func doMain(c *cli.Context) {
-	keys := make([]string, 0, 0) // slice with length 0
-	if c.String("key") != "" {
-		keys = strings.Split(c.String("key"), ",")
-	}
-	no_key := c.Bool("no-key")
-	funcAppend := getFuncAppend(no_key)
-
-	if len(c.Args()) > 0 {
-		for _, filename := range c.Args() {
-			file, err := os.Open(filename)
-			if err != nil {
-				os.Stderr.WriteString("failed to open and read " + filename)
-				exitCode = 1
-				return
-			}
-			scanAndWrite(file, keys, funcAppend)
-			file.Close()
-		}
-	} else {
-		file := os.Stdin
-		scanAndWrite(file, keys, funcAppend)
-		file.Close()
+func newLltsv(keys []string, no_key bool) *Lltsv {
+	return &Lltsv{
+		keys:       keys,
+		no_key:     no_key,
+		funcAppend: getFuncAppend(no_key),
 	}
 }
 
-func scanAndWrite(file *os.File, keys []string, funcAppend tFuncAppend) {
+func (lltsv *Lltsv) scanAndWrite(file *os.File) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		lvs := parseLtsv(line)
-		ltsv := restructLtsv(keys, lvs, funcAppend)
+		lvs := lltsv.parseLtsv(line)
+		ltsv := lltsv.restructLtsv(lvs)
 		os.Stdout.WriteString(ltsv + "\n")
 	}
 	if err := scanner.Err(); err != nil {
-		os.Stderr.WriteString("reading standard input errored")
+		os.Stderr.WriteString("reading input errored")
 		exitCode = 1
 		return
 	}
 }
 
-func restructLtsv(keys []string, lvs map[string]string, funcAppend tFuncAppend) string {
+// lvs: label and value pairs
+func (lltsv *Lltsv) restructLtsv(lvs map[string]string) string {
 	// specified keys or all keys
-	orders := keys
-	if len(keys) == 0 {
+	orders := lltsv.keys
+	if len(lltsv.keys) == 0 {
 		orders = keysInMap(lvs)
 	}
 	// make slice with enough capacity so that append does not newly create object
@@ -102,12 +52,12 @@ func restructLtsv(keys []string, lvs map[string]string, funcAppend tFuncAppend) 
 	selected := make([]string, 0, len(orders))
 	for _, label := range orders {
 		value := lvs[label]
-		selected = funcAppend(selected, label, value)
+		selected = lltsv.funcAppend(selected, label, value)
 	}
 	return strings.Join(selected, "\t")
 }
 
-func parseLtsv(line string) map[string]string {
+func (lltsv *Lltsv) parseLtsv(line string) map[string]string {
 	columns := strings.Split(line, "\t")
 	lvs := make(map[string]string)
 	for _, column := range columns {
