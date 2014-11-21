@@ -28,7 +28,9 @@ func main() {
 	Example2 $ echo "foo:aaa\tbar:bbb" | lltsv -k foo,bar -K
 	aaa       bbb
 
-	You may eliminate labels with "-K" option`
+	You may eliminate labels with "-K" option.
+
+	https://github.com/sonots/lltsv`
 	app.Author = "sonots"
 	app.Email = "sonots@gmail.com"
 	app.Flags = []cli.Flag{
