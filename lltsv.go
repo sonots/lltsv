@@ -56,21 +56,25 @@ func doMain(c *cli.Context) {
 	no_key := c.Bool("no-key")
 	funcAppend := getFuncAppend(no_key)
 
-	var file *os.File
 	if len(c.Args()) > 0 {
-		filename := c.Args()[0]
-		var err error
-		file, err = os.Open(filename)
-		if err != nil {
-			os.Stderr.WriteString("failed to open and read " + filename)
-			exitCode = 1
-			return
+		for _, filename := range c.Args() {
+			file, err := os.Open(filename)
+			if err != nil {
+				os.Stderr.WriteString("failed to open and read " + filename)
+				exitCode = 1
+				return
+			}
+			scanAndWrite(file, keys, funcAppend)
+			file.Close()
 		}
 	} else {
-		file = os.Stdin
+		file := os.Stdin
+		scanAndWrite(file, keys, funcAppend)
+		file.Close()
 	}
-	defer file.Close()
+}
 
+func scanAndWrite(file *os.File, keys []string, funcAppend func([]string, string, string) []string) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
