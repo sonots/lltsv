@@ -1,3 +1,9 @@
+## 0.3.1 (2014/11/21)
+
+Enhancements:
+
+* Add line feed to error messages
+
 ## 0.3.0 (2014/11/21)
 
 Enhancements:
