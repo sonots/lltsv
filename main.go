@@ -66,12 +66,22 @@ func doMain(c *cli.Context) {
 				exitCode = 1
 				return
 			}
-			lltsv.scanAndWrite(file)
+			err = lltsv.scanAndWrite(file)
 			file.Close()
+			if err != nil {
+				os.Stderr.WriteString("reading input errored\n")
+				exitCode = 1
+				return
+			}
 		}
 	} else {
 		file := os.Stdin
-		lltsv.scanAndWrite(file)
+		err := lltsv.scanAndWrite(file)
 		file.Close()
+		if err != nil {
+			os.Stderr.WriteString("reading input errored\n")
+			exitCode = 1
+			return
+		}
 	}
 }

@@ -25,7 +25,7 @@ func newLltsv(keys []string, no_key bool) *Lltsv {
 	}
 }
 
-func (lltsv *Lltsv) scanAndWrite(file *os.File) {
+func (lltsv *Lltsv) scanAndWrite(file *os.File) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -33,11 +33,7 @@ func (lltsv *Lltsv) scanAndWrite(file *os.File) {
 		ltsv := lltsv.restructLtsv(lvs)
 		os.Stdout.WriteString(ltsv + "\n")
 	}
-	if err := scanner.Err(); err != nil {
-		os.Stderr.WriteString("reading input errored\n")
-		exitCode = 1
-		return
-	}
+	return scanner.Err()
 }
 
 // lvs: label and value pairs
@@ -97,13 +93,4 @@ func keysInMap(m map[string]string) []string {
 		keys = append(keys, key)
 	}
 	return keys
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }
