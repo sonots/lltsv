@@ -2,7 +2,10 @@ package main
 
 import (
 	"bufio"
+	"log"
 	"os"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/andrew-d/go-termutil"
@@ -10,42 +13,51 @@ import (
 )
 
 type tFuncAppend func([]string, string, string) []string
+type tFuncFilter func(string) bool
 
 type Lltsv struct {
-	keys       []string
-	no_key     bool
-	funcAppend tFuncAppend
+	keys        []string
+	no_key      bool
+	filters     []string
+	funcAppend  tFuncAppend
+	funcFilters map[string]tFuncFilter
 }
 
-func newLltsv(keys []string, no_key bool) *Lltsv {
+func newLltsv(keys []string, no_key bool, filters []string) *Lltsv {
 	return &Lltsv{
-		keys:       keys,
-		no_key:     no_key,
-		funcAppend: getFuncAppend(no_key),
+		keys:        keys,
+		no_key:      no_key,
+		filters:     filters,
+		funcAppend:  getFuncAppend(no_key),
+		funcFilters: getFuncFilters(filters),
 	}
 }
 
-func (lltsv *Lltsv) scanAndWrite(file *os.File, filters map[string]Filter) error {
+func (lltsv *Lltsv) scanAndWrite(file *os.File) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		lvs := lltsv.parseLtsv(line)
 
-		should_output := true
-
-		for key, filter := range filters {
-			if !filter(lvs[key]) {
-				should_output = false
-				break
-			}
-		}
-
-		if should_output {
+		if lltsv.filter(lvs) {
 			ltsv := lltsv.restructLtsv(lvs)
 			os.Stdout.WriteString(ltsv + "\n")
 		}
 	}
 	return scanner.Err()
+}
+
+func (lltsv *Lltsv) filter(lvs map[string]string) bool {
+	should_output := true
+
+	for key, funcFilter := range lltsv.funcFilters {
+		if !funcFilter(lvs[key]) {
+			should_output = false
+			break
+		}
+	}
+
+	return should_output
 }
 
 // lvs: label and value pairs
@@ -97,6 +109,56 @@ func getFuncAppend(no_key bool) tFuncAppend {
 			}
 		}
 	}
+}
+
+func getFuncFilters(filters []string) map[string]tFuncFilter {
+	funcFilters := map[string]tFuncFilter{}
+	for _, f := range filters {
+		token := strings.SplitN(f, " ", 3)
+		key := token[0]
+		switch token[1] {
+		case ">", ">=", "==", "<=", "<":
+			r, err := strconv.ParseFloat(token[2], 64)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			funcFilters[key] = func(val string) bool {
+				num, err := strconv.ParseFloat(val, 64)
+				if err != nil {
+					log.Println(err)
+					return false
+				}
+				switch token[1] {
+				case ">":
+					return num > r
+				case ">=":
+					return num >= r
+				case "==":
+					return num == r
+				case "<=":
+					return num <= r
+				case "<":
+					return num < r
+				default:
+					return false
+				}
+			}
+		case "=~", "!~":
+			re := regexp.MustCompile(token[2])
+			funcFilters[key] = func(val string) bool {
+				switch token[1] {
+				case "=~":
+					return re.MatchString(val)
+				case "!~":
+					return !re.MatchString(val)
+				default:
+					return false
+				}
+			}
+		}
+	}
+	return funcFilters
 }
 
 func keysInMap(m map[string]string) []string {

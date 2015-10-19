@@ -1,10 +1,7 @@
 package main
 
 import (
-	"log"
 	"os"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/codegangsta/cli"
@@ -12,8 +9,6 @@ import (
 
 // os.Exit forcely kills process, so let me share this global variable to terminate at the last
 var exitCode = 0
-
-type Filter func(string) bool
 
 func main() {
 	app := cli.NewApp()
@@ -74,56 +69,9 @@ func doMain(c *cli.Context) {
 		keys = strings.Split(c.String("key"), ",")
 	}
 	no_key := c.Bool("no-key")
+	filters := c.StringSlice("filter")
 
-	filters := map[string]Filter{}
-
-	for _, f := range c.StringSlice("filter") {
-		token := strings.SplitN(f, " ", 3)
-		key := token[0]
-		switch token[1] {
-		case ">", ">=", "==", "<=", "<":
-			r, err := strconv.ParseFloat(token[2], 64)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			filters[key] = func(val string) bool {
-				num, err := strconv.ParseFloat(val, 64)
-				if err != nil {
-					log.Println(err)
-					return false
-				}
-				switch token[1] {
-				case ">":
-					return num > r
-				case ">=":
-					return num >= r
-				case "==":
-					return num == r
-				case "<=":
-					return num <= r
-				case "<":
-					return num < r
-				default:
-					return false
-				}
-			}
-		case "=~", "!~":
-			re := regexp.MustCompile(token[2])
-			filters[key] = func(val string) bool {
-				switch token[1] {
-				case "=~":
-					return re.MatchString(val)
-				case "!~":
-					return !re.MatchString(val)
-				default:
-					return false
-				}
-			}
-		}
-	}
-
-	lltsv := newLltsv(keys, no_key)
+	lltsv := newLltsv(keys, no_key, filters)
 
 	if len(c.Args()) > 0 {
 		for _, filename := range c.Args() {
@@ -133,7 +81,7 @@ func doMain(c *cli.Context) {
 				exitCode = 1
 				return
 			}
-			err = lltsv.scanAndWrite(file, filters)
+			err = lltsv.scanAndWrite(file)
 			file.Close()
 			if err != nil {
 				os.Stderr.WriteString("reading input errored\n")
@@ -143,7 +91,7 @@ func doMain(c *cli.Context) {
 		}
 	} else {
 		file := os.Stdin
-		err := lltsv.scanAndWrite(file, filters)
+		err := lltsv.scanAndWrite(file)
 		file.Close()
 		if err != nil {
 			os.Stderr.WriteString("reading input errored\n")
