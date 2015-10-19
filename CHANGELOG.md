@@ -1,3 +1,9 @@
+## 0.4.0 (2015/10/20)
+
+Enhancements:
+
+* Add `filter` option (thanks to @hirose31)
+
 ## 0.3.1 (2014/11/21)
 
 Enhancements:
