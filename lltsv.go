@@ -25,13 +25,25 @@ func newLltsv(keys []string, no_key bool) *Lltsv {
 	}
 }
 
-func (lltsv *Lltsv) scanAndWrite(file *os.File) error {
+func (lltsv *Lltsv) scanAndWrite(file *os.File, filters map[string]Filter) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		lvs := lltsv.parseLtsv(line)
-		ltsv := lltsv.restructLtsv(lvs)
-		os.Stdout.WriteString(ltsv + "\n")
+
+		should_output := true
+
+		for key, filter := range filters {
+			if !filter(lvs[key]) {
+				should_output = false
+				break
+			}
+		}
+
+		if should_output {
+			ltsv := lltsv.restructLtsv(lvs)
+			os.Stdout.WriteString(ltsv + "\n")
+		}
 	}
 	return scanner.Err()
 }
