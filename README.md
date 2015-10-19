@@ -33,6 +33,22 @@ $ lltsv -k foo,bar -K file*.log
 
 Specify input files as arguments.
 
+Example4:
+
+```bash
+$ lltsv -k resptime,status,uri -f 'resptime > 6' access_log
+$ lltsv -k resptime,status,uri -f 'resptime > 6' -f 'uri =~ ^/foo' access_log
+```
+
+Filter output with "-f" option. Available comparing operaters are:
+
+```
+  >= > == < <= (arithmetic (float64))
+  =~ !~        (regular expression (string))
+```
+
+You can specify multiple -f options (AND condition).
+
 **How Useful?**
 
 LTSV format is not `awk` friendly (I think), but `lltsv` can help it: 
