@@ -115,6 +115,10 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 	funcFilters := map[string]tFuncFilter{}
 	for _, f := range filters {
 		token := strings.SplitN(f, " ", 3)
+		if len(token) < 3 {
+			log.Printf("filter expression is invalid: %s\n", f)
+			continue
+		}
 		key := token[0]
 		switch token[1] {
 		case ">", ">=", "==", "<=", "<":
