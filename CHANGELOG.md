@@ -1,3 +1,9 @@
+## 0.4.1 (2015/06/13)
+
+Enhancements:
+
+* filter: fixed panic error when the invalid filter expression is given. (thanks to @cubicdaiya)
+
 ## 0.4.0 (2015/10/20)
 
 Enhancements:
