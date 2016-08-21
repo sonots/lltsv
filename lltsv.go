@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -14,22 +15,33 @@ import (
 
 type tFuncAppend func([]string, string, string) []string
 type tFuncFilter func(string) bool
+type tFuncExpr func(string, string) string
+
+type ExprRunner struct {
+	f  tFuncExpr
+	ol string
+	or string
+}
 
 type Lltsv struct {
 	keys        []string
 	no_key      bool
 	filters     []string
+	exprs       []string
 	funcAppend  tFuncAppend
 	funcFilters map[string]tFuncFilter
+	funcExprs   map[string]*ExprRunner
 }
 
-func newLltsv(keys []string, no_key bool, filters []string) *Lltsv {
+func newLltsv(keys []string, no_key bool, filters []string, exprs []string) *Lltsv {
 	return &Lltsv{
 		keys:        keys,
 		no_key:      no_key,
 		filters:     filters,
+		exprs:       exprs,
 		funcAppend:  getFuncAppend(no_key),
 		funcFilters: getFuncFilters(filters),
+		funcExprs:   getFuncExprs(exprs),
 	}
 }
 
@@ -38,11 +50,13 @@ func (lltsv *Lltsv) scanAndWrite(file *os.File) error {
 	for scanner.Scan() {
 		line := scanner.Text()
 		lvs := lltsv.parseLtsv(line)
+		lltsv.expr(lvs)
 
 		if lltsv.filter(lvs) {
 			ltsv := lltsv.restructLtsv(lvs)
 			os.Stdout.WriteString(ltsv + "\n")
 		}
+
 	}
 	return scanner.Err()
 }
@@ -58,6 +72,16 @@ func (lltsv *Lltsv) filter(lvs map[string]string) bool {
 	}
 
 	return should_output
+}
+
+func (lltsv *Lltsv) expr(lvs map[string]string) {
+	for key, funcExpr := range lltsv.funcExprs {
+		l, ok1 := lvs[funcExpr.ol]
+		r, ok2 := lvs[funcExpr.or]
+		if ok1 && ok2 {
+			lvs[key] = funcExpr.f(l, r)
+		}
+	}
 }
 
 // lvs: label and value pairs
@@ -109,6 +133,63 @@ func getFuncAppend(no_key bool) tFuncAppend {
 			}
 		}
 	}
+}
+
+func getFuncExprs(exprs []string) map[string]*ExprRunner {
+	funcExprs := make(map[string]*ExprRunner, len(exprs))
+	for _, f := range exprs {
+		token := strings.SplitN(f, " ", 5)
+		if len(token) < 5 {
+			log.Printf("expression is invalid: %s\n", f)
+			continue
+		}
+
+		key := token[0]
+
+		if token[1] != "=" {
+			log.Printf("expression is invalid: %s\n", f)
+			continue
+		}
+
+		operator := token[3]
+		switch operator {
+		case "+", "-", "*", "/":
+			// pass through
+		default:
+			log.Printf("expression is invalid: %s\n", f)
+			continue
+		}
+
+		funcExprs[key] = &ExprRunner{
+			f: func(ls, rs string) string {
+				l, err := strconv.ParseFloat(ls, 64)
+				if err != nil {
+					return ""
+				}
+				r, err := strconv.ParseFloat(rs, 64)
+				if err != nil {
+					return ""
+				}
+				result := float64(0)
+				switch operator {
+				case "+":
+					result = l + r
+				case "-":
+					result = l - r
+				case "*":
+					result = l * r
+				case "/":
+					result = l / r
+				default:
+					return ""
+				}
+				return fmt.Sprintf("%.3f", result)
+			},
+			ol: token[2],
+			or: token[4],
+		}
+	}
+	return funcExprs
 }
 
 func getFuncFilters(filters []string) map[string]tFuncFilter {
