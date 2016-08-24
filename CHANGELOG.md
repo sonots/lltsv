@@ -1,3 +1,9 @@
+## 0.5.0 (2016/08/24)
+
+Enhancements:
+
+* Add new option -expr, -e (thanks to @cubicdaiya)
+
 ## 0.4.1 (2015/06/13)
 
 Enhancements:
