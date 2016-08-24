@@ -1,3 +1,9 @@
+## 0.5.1 (2016/08/25)
+
+Enhancements:
+
+* Fix typo
+
 ## 0.5.0 (2016/08/24)
 
 Enhancements:
