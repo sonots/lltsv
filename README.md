@@ -40,7 +40,7 @@ $ lltsv -k resptime,status,uri -f 'resptime > 6' access_log
 $ lltsv -k resptime,status,uri -f 'resptime > 6' -f 'uri =~ ^/foo' access_log
 ```
 
-Filter output with "-f" option. Available comparing operaters are:
+Filter output with "-f" option. Available comparing operators are:
 
 ```
   >= > == < <= (arithmetic (float64))
@@ -55,7 +55,7 @@ Example5:
 $ lltsv -k resptime,upstream_resptime,diff -f 'diff = resptime - upstream_resptime' access_log
 ```
 
-Evaluate value with "-e" option. Available operaters are:
+Evaluate value with "-e" option. Available operators are:
 
 ```
   + - * / (arithmetic (float64))
