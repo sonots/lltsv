@@ -41,6 +41,12 @@ func main() {
 
 	You can specify multiple -f options (AND condition).
 
+	Example5 $ lltsv -k resptime,upstream_resptime,diff -f 'diff = resptime - upstream_resptime' access_log
+
+	Evaluate value with "-e" option. Available operaters are:
+
+	  + - * / (arithmetic (float64))
+
 	Homepage: https://github.com/sonots/lltsv`
 	app.Author = "sonots"
 	app.Email = "sonots@gmail.com"
@@ -57,6 +63,10 @@ func main() {
 			Name:  "filter, f",
 			Usage: "filter expression to output",
 		},
+		cli.StringSliceFlag{
+			Name:  "expr, e",
+			Usage: "evaluate value by expression to output",
+		},
 	}
 	app.Action = doMain
 	app.Run(os.Args)
@@ -70,8 +80,9 @@ func doMain(c *cli.Context) {
 	}
 	no_key := c.Bool("no-key")
 	filters := c.StringSlice("filter")
+	exprs := c.StringSlice("expr")
 
-	lltsv := newLltsv(keys, no_key, filters)
+	lltsv := newLltsv(keys, no_key, filters, exprs)
 
 	if len(c.Args()) > 0 {
 		for _, filename := range c.Args() {
