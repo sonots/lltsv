@@ -101,16 +101,21 @@ USAGE:
    lltsv [global options] command [command options] [arguments...]
 
 VERSION:
-   0.3.0
+   0.5.1
+
+AUTHOR(S):
+   sonots <sonots@gmail.com>
 
 COMMANDS:
    help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --key, -k            keys to output (multiple keys separated by ,)
-   --no-key, -K         output without keys (and without color)
-   --version, -v        print the version
-   --help, -h           show help
+   --key, -k                                            keys to output (multiple keys separated by ,)
+   --no-key, -K                                         output without keys (and without color)
+   --filter, -f [--filter option --filter option]       filter expression to output
+   --expr, -e [--expr option --expr option]             evaluate value by expression to output
+   --help, -h                                           show help
+   --version, -v                                        print the version
 ```
 
 ## ToDo
