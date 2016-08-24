@@ -49,6 +49,18 @@ Filter output with "-f" option. Available comparing operaters are:
 
 You can specify multiple -f options (AND condition).
 
+Example5:
+
+```bash
+$ lltsv -k resptime,upstream_resptime,diff -f 'diff = resptime - upstream_resptime' access_log
+```
+
+Evaluate value with "-e" option. Available operaters are:
+
+```
+  + - * / (arithmetic (float64))
+```
+
 **How Useful?**
 
 LTSV format is not `awk` friendly (I think), but `lltsv` can help it: 
