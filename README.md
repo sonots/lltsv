@@ -52,7 +52,7 @@ You can specify multiple -f options (AND condition).
 Example5:
 
 ```bash
-$ lltsv -k resptime,upstream_resptime,diff -f 'diff = resptime - upstream_resptime' access_log
+$ lltsv -k resptime,upstream_resptime,diff -e 'diff = resptime - upstream_resptime' access_log
 ```
 
 Evaluate value with "-e" option. Available operators are:
