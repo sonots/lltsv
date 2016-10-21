@@ -73,7 +73,7 @@ func main() {
 	os.Exit(exitCode)
 }
 
-func doMain(c *cli.Context) {
+func doMain(c *cli.Context) error {
 	keys := make([]string, 0, 0) // slice with length 0
 	if c.String("key") != "" {
 		keys = strings.Split(c.String("key"), ",")
@@ -90,14 +90,14 @@ func doMain(c *cli.Context) {
 			if err != nil {
 				os.Stderr.WriteString("failed to open and read `" + filename + "`.\n")
 				exitCode = 1
-				return
+				return err
 			}
 			err = lltsv.scanAndWrite(file)
 			file.Close()
 			if err != nil {
 				os.Stderr.WriteString("reading input errored\n")
 				exitCode = 1
-				return
+				return err
 			}
 		}
 	} else {
@@ -107,7 +107,9 @@ func doMain(c *cli.Context) {
 		if err != nil {
 			os.Stderr.WriteString("reading input errored\n")
 			exitCode = 1
-			return
+			return err
 		}
 	}
+
+	return nil
 }
