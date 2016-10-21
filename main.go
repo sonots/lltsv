@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/codegangsta/cli"
+	"github.com/urfave/cli"
 )
 
 // os.Exit forcely kills process, so let me share this global variable to terminate at the last
