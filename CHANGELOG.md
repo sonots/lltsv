@@ -1,3 +1,13 @@
+## 0.5.2 (2016/10/28)
+
+Enhancements:
+
+* Enable perfect string match by '==' (thanks to @cubidaiya)
+
+Changes:
+
+* Replace codegangsta/cli with urfave/cli (thanks to @b4b4r07)
+
 ## 0.5.1 (2016/08/25)
 
 Enhancements:
