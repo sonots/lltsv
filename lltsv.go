@@ -202,7 +202,7 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 		}
 		key := token[0]
 		switch token[1] {
-		case ">", ">=", "==", "<=", "<":
+		case ">", ">=", "<=", "<":
 			r, err := strconv.ParseFloat(token[2], 64)
 			if err != nil {
 				log.Fatal(err)
@@ -219,8 +219,6 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 					return num > r
 				case ">=":
 					return num >= r
-				case "==":
-					return num == r
 				case "<=":
 					return num <= r
 				case "<":
@@ -228,6 +226,10 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 				default:
 					return false
 				}
+			}
+		case "==":
+			funcFilters[key] = func(val string) bool {
+				return val == token[2]
 			}
 		case "=~", "!~":
 			re := regexp.MustCompile(token[2])
