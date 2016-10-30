@@ -231,7 +231,14 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 			funcFilters[key] = func(val string) bool {
 				return val == token[2]
 			}
-		case "=~", "!~":
+		case "==*":
+			funcFilters[key] = func(val string) bool {
+				return strings.ToLower(val) == strings.ToLower(token[2])
+			}
+		case "=~", "!~", "=~*", "!~*":
+			if token[1] == "=~*" || token[1] == "!~*" {
+				token[2] = strings.ToLower(token[2])
+			}
 			re := regexp.MustCompile(token[2])
 			funcFilters[key] = func(val string) bool {
 				switch token[1] {
@@ -239,6 +246,10 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 					return re.MatchString(val)
 				case "!~":
 					return !re.MatchString(val)
+				case "=~*":
+					return re.MatchString(strings.ToLower(val))
+				case "!~*":
+					return !re.MatchString(strings.ToLower(val))
 				default:
 					return false
 				}
