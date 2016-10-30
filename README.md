@@ -43,10 +43,12 @@ $ lltsv -k resptime,status,uri -f 'resptime > 6' -f 'uri =~ ^/foo' access_log
 Filter output with "-f" option. Available comparing operators are:
 
 ```
-  >= > == < <= (arithmetic (float64))
-  ==           (string comparison (string))
-  =~ !~        (regular expression (string))
+  >= > == < <=  (arithmetic (float64))
+  == ==*        (string comparison (string))
+  =~ !~ =~* !~* (regular expression (string))
 ```
+
+The comparing operators terminated by __*__ behave in case-insentive.
 
 You can specify multiple -f options (AND condition).
 
