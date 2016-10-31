@@ -1,3 +1,9 @@
+## 0.5.4 (2016/10/31)
+
+Fixes:
+
+* Typo fixed
+
 ## 0.5.3 (2016/10/31)
 
 Enhancements:
