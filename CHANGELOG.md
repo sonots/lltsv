@@ -1,8 +1,14 @@
+## 0.5.3 (2016/10/31)
+
+Enhancements:
+
+* Introduce case-insentive comparing operators such as `==*`, `=~*`, `!~*` (thanks to @cubicdaiya)
+
 ## 0.5.2 (2016/10/28)
 
 Enhancements:
 
-* Enable perfect string match by '==' (thanks to @cubidaiya)
+* Enable perfect string match by '==' (thanks to @cubicdaiya)
 
 Changes:
 
