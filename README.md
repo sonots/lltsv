@@ -48,7 +48,7 @@ Filter output with "-f" option. Available comparing operators are:
   =~ !~ =~* !~* (regular expression (string))
 ```
 
-The comparing operators terminated by __*__ behave in case-insentive.
+The comparing operators terminated by __*__ behave in case-insensitive.
 
 You can specify multiple -f options (AND condition).
 
