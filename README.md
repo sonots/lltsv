@@ -143,7 +143,7 @@ gox -build-toolchain # only first time
 go get github.com/tcnksm/ghr
 
 mkdir -p pkg && cd pkg && gox ../...
-ghr <tag> .
+ghr vX.X.X .
 ```
 
 ## Contribution
