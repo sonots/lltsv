@@ -40,7 +40,7 @@ func main() {
     == ==*        (string comparison (string))
     =~ !~ =~* !~* (regular expression (string))
 
-        The comparing operators terminated by * behave in case-insentive.
+        The comparing operators terminated by * behave in case-insensitive.
 
 	You can specify multiple -f options (AND condition).
 
