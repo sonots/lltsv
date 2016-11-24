@@ -1,3 +1,9 @@
+## 0.5.5 (2016/11/24)
+
+Fixes:
+
+* filter: exited when invalid filter expression was given (thanks to @cubicdaiya)
+
 ## 0.5.4 (2016/10/31)
 
 Fixes:
