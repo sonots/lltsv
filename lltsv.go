@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -15,13 +14,6 @@ import (
 
 type tFuncAppend func([]string, string, string) []string
 type tFuncFilter func(string) bool
-type tFuncExpr func(string, string) string
-
-type ExprRunner struct {
-	f  tFuncExpr
-	ol string
-	or string
-}
 
 type Lltsv struct {
 	keys        []string
@@ -30,7 +22,7 @@ type Lltsv struct {
 	exprs       []string
 	funcAppend  tFuncAppend
 	funcFilters map[string]tFuncFilter
-	funcExprs   map[string]*ExprRunner
+	exprRunners map[string]*ExprRunner
 }
 
 func newLltsv(keys []string, no_key bool, filters []string, exprs []string) *Lltsv {
@@ -41,7 +33,7 @@ func newLltsv(keys []string, no_key bool, filters []string, exprs []string) *Llt
 		exprs:       exprs,
 		funcAppend:  getFuncAppend(no_key),
 		funcFilters: getFuncFilters(filters),
-		funcExprs:   getFuncExprs(exprs),
+		exprRunners: getExprRunners(exprs),
 	}
 }
 
@@ -75,11 +67,13 @@ func (lltsv *Lltsv) filter(lvs map[string]string) bool {
 }
 
 func (lltsv *Lltsv) expr(lvs map[string]string) {
-	for key, funcExpr := range lltsv.funcExprs {
-		l, ok1 := lvs[funcExpr.ol]
-		r, ok2 := lvs[funcExpr.or]
-		if ok1 && ok2 {
-			lvs[key] = funcExpr.f(l, r)
+	ctx := &ExprContext{
+		vars: lvs,
+	}
+	for key, runner := range lltsv.exprRunners {
+		v, err := evalExpr(runner.expr, ctx)
+		if err == nil {
+			lvs[key] = v.String()
 		}
 	}
 }
@@ -133,63 +127,6 @@ func getFuncAppend(no_key bool) tFuncAppend {
 			}
 		}
 	}
-}
-
-func getFuncExprs(exprs []string) map[string]*ExprRunner {
-	funcExprs := make(map[string]*ExprRunner, len(exprs))
-	for _, f := range exprs {
-		token := strings.SplitN(f, " ", 5)
-		if len(token) < 5 {
-			log.Printf("expression is invalid: %s\n", f)
-			continue
-		}
-
-		key := token[0]
-
-		if token[1] != "=" {
-			log.Printf("expression is invalid: %s\n", f)
-			continue
-		}
-
-		operator := token[3]
-		switch operator {
-		case "+", "-", "*", "/":
-			// pass through
-		default:
-			log.Printf("expression is invalid: %s\n", f)
-			continue
-		}
-
-		funcExprs[key] = &ExprRunner{
-			f: func(ls, rs string) string {
-				l, err := strconv.ParseFloat(ls, 64)
-				if err != nil {
-					return ""
-				}
-				r, err := strconv.ParseFloat(rs, 64)
-				if err != nil {
-					return ""
-				}
-				result := float64(0)
-				switch operator {
-				case "+":
-					result = l + r
-				case "-":
-					result = l - r
-				case "*":
-					result = l * r
-				case "/":
-					result = l / r
-				default:
-					return ""
-				}
-				return fmt.Sprintf("%.3f", result)
-			},
-			ol: token[2],
-			or: token[4],
-		}
-	}
-	return funcExprs
 }
 
 func getFuncFilters(filters []string) map[string]tFuncFilter {
@@ -256,6 +193,30 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 		}
 	}
 	return funcFilters
+}
+
+func getExprRunners(exprs []string) map[string]*ExprRunner {
+	funcExprs := make(map[string]*ExprRunner, len(exprs))
+	for _, f := range exprs {
+		token := strings.SplitN(f, "=", 2)
+		if len(token) != 2 {
+			log.Printf("expression is invalid: %s\n", f)
+			continue
+		}
+
+		expr, err := parseExpr(token[1])
+		if err != nil {
+			log.Printf("expression is invalid: %s\n", f)
+			continue
+		}
+
+		key := strings.Trim(token[0], " ")
+
+		funcExprs[key] = &ExprRunner{
+			expr: expr,
+		}
+	}
+	return funcExprs
 }
 
 func keysInMap(m map[string]string) []string {

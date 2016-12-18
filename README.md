@@ -56,6 +56,7 @@ Example5:
 
 ```bash
 $ lltsv -k resptime,upstream_resptime,diff -e 'diff = resptime - upstream_resptime' access_log
+$ lltsv -k resptime,upstream_resptime,diff_ms -e 'diff_ms = (resptime - upstream_resptime) * 1000' access_log
 ```
 
 Evaluate value with "-e" option. Available operators are:
