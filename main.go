@@ -45,6 +45,7 @@ func main() {
 	You can specify multiple -f options (AND condition).
 
 	Example5 $ lltsv -k resptime,upstream_resptime,diff -f 'diff = resptime - upstream_resptime' access_log
+	         $ lltsv -k resptime,upstream_resptime,diff_ms -e 'diff_ms = (resptime - upstream_resptime) * 1000' access_log
 
 	Evaluate value with "-e" option. Available operators are:
 
