@@ -171,6 +171,14 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 			funcFilters[key] = func(val string) bool {
 				return strings.ToLower(val) == strings.ToLower(token[2])
 			}
+		case "!=":
+			funcFilters[key] = func(val string) bool {
+				return val != token[2]
+			}
+		case "!=*":
+			funcFilters[key] = func(val string) bool {
+				return strings.ToLower(val) != strings.ToLower(token[2])
+			}
 		case "=~", "!~", "=~*", "!~*":
 			if token[1] == "=~*" || token[1] == "!~*" {
 				token[2] = strings.ToLower(token[2])
