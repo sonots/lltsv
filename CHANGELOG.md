@@ -1,3 +1,10 @@
+## 0.5.6 (2017/03/21)
+
+Fixes:
+
+* feature: introduced not-equal operators for string.
+* expr: re-implemented by go package.
+
 ## 0.5.5 (2016/11/24)
 
 Fixes:
