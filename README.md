@@ -44,7 +44,7 @@ Filter output with "-f" option. Available comparing operators are:
 
 ```
   >= > == < <=  (arithmetic (float64))
-  == ==*        (string comparison (string))
+  == ==* != !=* (string comparison (string))
   =~ !~ =~* !~* (regular expression (string))
 ```
 
