@@ -41,11 +41,11 @@ func (lltsv *Lltsv) scanAndWrite(file *os.File) error {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		lvs := lltsv.parseLtsv(line)
+		lvs, keys := lltsv.parseLtsv(line)
 		lltsv.expr(lvs)
 
 		if lltsv.filter(lvs) {
-			ltsv := lltsv.restructLtsv(lvs)
+			ltsv := lltsv.restructLtsv(lvs, keys)
 			os.Stdout.WriteString(ltsv + "\n")
 		}
 
@@ -79,11 +79,11 @@ func (lltsv *Lltsv) expr(lvs map[string]string) {
 }
 
 // lvs: label and value pairs
-func (lltsv *Lltsv) restructLtsv(lvs map[string]string) string {
+func (lltsv *Lltsv) restructLtsv(lvs map[string]string, keys []string) string {
 	// specified keys or all keys
 	orders := lltsv.keys
 	if len(lltsv.keys) == 0 {
-		orders = keysInMap(lvs)
+		orders = keys
 	}
 	// make slice with enough capacity so that append does not newly create object
 	// cf. http://golang.org/pkg/builtin/#append
@@ -95,9 +95,10 @@ func (lltsv *Lltsv) restructLtsv(lvs map[string]string) string {
 	return strings.Join(selected, "\t")
 }
 
-func (lltsv *Lltsv) parseLtsv(line string) map[string]string {
+func (lltsv *Lltsv) parseLtsv(line string) (map[string]string, []string) {
 	columns := strings.Split(line, "\t")
 	lvs := make(map[string]string)
+	keys := make([]string, 0, len(columns))
 	for _, column := range columns {
 		l_v := strings.SplitN(column, ":", 2)
 		if len(l_v) < 2 {
@@ -105,8 +106,9 @@ func (lltsv *Lltsv) parseLtsv(line string) map[string]string {
 		}
 		label, value := l_v[0], l_v[1]
 		lvs[label] = value
+		keys = append(keys, label)
 	}
-	return lvs
+	return lvs, keys
 }
 
 // Return function pointer to avoid `if` evaluation occurs in each iteration
@@ -225,12 +227,4 @@ func getExprRunners(exprs []string) map[string]*ExprRunner {
 		}
 	}
 	return funcExprs
-}
-
-func keysInMap(m map[string]string) []string {
-	keys := make([]string, 0, len(m))
-	for key := range m {
-		keys = append(keys, key)
-	}
-	return keys
 }
