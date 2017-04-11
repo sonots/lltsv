@@ -1,3 +1,10 @@
+## 0.6.0 (2017/04/11)
+
+Fixes:
+
+* sort keys by default. refs: #16
+* build: fixed `go get` error for ghr. refs #15
+
 ## 0.5.6 (2017/03/21)
 
 Fixes:
