@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/urfave/cli"
@@ -73,6 +75,17 @@ func main() {
 		},
 	}
 	app.Action = doMain
+
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Fprintf(app.Writer, `%v version %v
+Compiler: %s %s
+`,
+			app.Name,
+			app.Version,
+			runtime.Compiler,
+			runtime.Version())
+	}
+
 	app.Run(os.Args)
 	os.Exit(exitCode)
 }
