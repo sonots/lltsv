@@ -16,14 +16,14 @@ type tFuncAppend func([]string, string, string) []string
 type tFuncFilter func(string) bool
 
 type Lltsv struct {
-	keys        []string
+	keys         []string
 	ignoreKeyMap map[string]struct{}
-	no_key      bool
-	filters     []string
-	exprs       []string
-	funcAppend  tFuncAppend
-	funcFilters map[string]tFuncFilter
-	exprRunners map[string]*ExprRunner
+	no_key       bool
+	filters      []string
+	exprs        []string
+	funcAppend   tFuncAppend
+	funcFilters  map[string]tFuncFilter
+	exprRunners  map[string]*ExprRunner
 }
 
 func newLltsv(keys []string, ignoreKeys []string, no_key bool, filters []string, exprs []string) *Lltsv {
@@ -32,14 +32,14 @@ func newLltsv(keys []string, ignoreKeys []string, no_key bool, filters []string,
 		ignoreKeyMap[key] = struct{}{}
 	}
 	return &Lltsv{
-		keys:        keys,
+		keys:         keys,
 		ignoreKeyMap: ignoreKeyMap,
-		no_key:      no_key,
-		filters:     filters,
-		exprs:       exprs,
-		funcAppend:  getFuncAppend(no_key),
-		funcFilters: getFuncFilters(filters),
-		exprRunners: getExprRunners(exprs),
+		no_key:       no_key,
+		filters:      filters,
+		exprs:        exprs,
+		funcAppend:   getFuncAppend(no_key),
+		funcFilters:  getFuncFilters(filters),
+		exprRunners:  getExprRunners(exprs),
 	}
 }
 
