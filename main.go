@@ -99,7 +99,7 @@ func doMain(c *cli.Context) error {
 	if c.String("key") != "" {
 		keys = strings.Split(c.String("key"), ",")
 	}
-	no_key := c.Bool("no-key")
+	noKey := c.Bool("no-key")
 	filters := c.StringSlice("filter")
 	exprs := c.StringSlice("expr")
 
@@ -109,7 +109,7 @@ func doMain(c *cli.Context) error {
 		ignoreKeys = strings.Split(c.String("ignore-key"), ",")
 	}
 
-	lltsv := newLltsv(keys, ignoreKeys, no_key, filters, exprs)
+	lltsv := newLltsv(keys, ignoreKeys, noKey, filters, exprs)
 
 	if len(c.Args()) > 0 {
 		for _, filename := range c.Args() {
