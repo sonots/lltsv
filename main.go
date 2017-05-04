@@ -63,6 +63,10 @@ func main() {
 			Name:  "no-key, K",
 			Usage: "output without keys (and without color)",
 		},
+		cli.StringFlag{
+			Name:  "ignore-key, i",
+			Usage: "ignored keys to output (multiple keys separated by ,)",
+		},
 		cli.StringSliceFlag{
 			Name:  "filter, f",
 			Usage: "filter expression to output",
@@ -86,7 +90,13 @@ func doMain(c *cli.Context) error {
 	filters := c.StringSlice("filter")
 	exprs := c.StringSlice("expr")
 
-	lltsv := newLltsv(keys, no_key, filters, exprs)
+	ignoreKeys := make([]string, 0, 0)
+	// If -k,--key is specified, -i,--ignore-key is ignored.
+	if len(keys) == 0 && c.String("ignore-key") != "" {
+		ignoreKeys = strings.Split(c.String("ignore-key"), ",")
+	}
+
+	lltsv := newLltsv(keys, ignoreKeys, no_key, filters, exprs)
 
 	if len(c.Args()) > 0 {
 		for _, filename := range c.Args() {

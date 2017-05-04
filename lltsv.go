@@ -17,6 +17,7 @@ type tFuncFilter func(string) bool
 
 type Lltsv struct {
 	keys        []string
+	ignoreKeyMap map[string]struct{}
 	no_key      bool
 	filters     []string
 	exprs       []string
@@ -25,9 +26,14 @@ type Lltsv struct {
 	exprRunners map[string]*ExprRunner
 }
 
-func newLltsv(keys []string, no_key bool, filters []string, exprs []string) *Lltsv {
+func newLltsv(keys []string, ignoreKeys []string, no_key bool, filters []string, exprs []string) *Lltsv {
+	ignoreKeyMap := make(map[string]struct{})
+	for _, key := range ignoreKeys {
+		ignoreKeyMap[key] = struct{}{}
+	}
 	return &Lltsv{
 		keys:        keys,
+		ignoreKeyMap: ignoreKeyMap,
 		no_key:      no_key,
 		filters:     filters,
 		exprs:       exprs,
@@ -89,6 +95,9 @@ func (lltsv *Lltsv) restructLtsv(lvs map[string]string, keys []string) string {
 	// cf. http://golang.org/pkg/builtin/#append
 	selected := make([]string, 0, len(orders))
 	for _, label := range orders {
+		if _, ok := lltsv.ignoreKeyMap[label]; ok {
+			continue
+		}
 		value := lvs[label]
 		selected = lltsv.funcAppend(selected, label, value)
 	}

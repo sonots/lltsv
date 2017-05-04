@@ -116,6 +116,7 @@ COMMANDS:
 GLOBAL OPTIONS:
    --key, -k                                            keys to output (multiple keys separated by ,)
    --no-key, -K                                         output without keys (and without color)
+   --ignore-key value, -i value                         ignored keys to output (multiple keys separated by ,)
    --filter, -f [--filter option --filter option]       filter expression to output
    --expr, -e [--expr option --expr option]             evaluate value by expression to output
    --help, -h                                           show help
