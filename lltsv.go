@@ -15,10 +15,11 @@ import (
 type tFuncAppend func([]string, string, string) []string
 type tFuncFilter func(string) bool
 
+// Lltsv is a context for processing LTSV.
 type Lltsv struct {
 	keys         []string
 	ignoreKeyMap map[string]struct{}
-	no_key       bool
+	noKey        bool
 	filters      []string
 	exprs        []string
 	funcAppend   tFuncAppend
@@ -26,7 +27,7 @@ type Lltsv struct {
 	exprRunners  map[string]*ExprRunner
 }
 
-func newLltsv(keys []string, ignoreKeys []string, no_key bool, filters []string, exprs []string) *Lltsv {
+func newLltsv(keys []string, ignoreKeys []string, noKey bool, filters []string, exprs []string) *Lltsv {
 	ignoreKeyMap := make(map[string]struct{})
 	for _, key := range ignoreKeys {
 		ignoreKeyMap[key] = struct{}{}
@@ -34,10 +35,10 @@ func newLltsv(keys []string, ignoreKeys []string, no_key bool, filters []string,
 	return &Lltsv{
 		keys:         keys,
 		ignoreKeyMap: ignoreKeyMap,
-		no_key:       no_key,
+		noKey:        noKey,
 		filters:      filters,
 		exprs:        exprs,
-		funcAppend:   getFuncAppend(no_key),
+		funcAppend:   getFuncAppend(noKey),
 		funcFilters:  getFuncFilters(filters),
 		exprRunners:  getExprRunners(exprs),
 	}
@@ -60,16 +61,16 @@ func (lltsv *Lltsv) scanAndWrite(file *os.File) error {
 }
 
 func (lltsv *Lltsv) filter(lvs map[string]string) bool {
-	should_output := true
+	shouldOutput := true
 
 	for key, funcFilter := range lltsv.funcFilters {
 		if !funcFilter(lvs[key]) {
-			should_output = false
+			shouldOutput = false
 			break
 		}
 	}
 
-	return should_output
+	return shouldOutput
 }
 
 func (lltsv *Lltsv) expr(lvs map[string]string) {
@@ -109,11 +110,11 @@ func (lltsv *Lltsv) parseLtsv(line string) (map[string]string, []string) {
 	lvs := make(map[string]string)
 	keys := make([]string, 0, len(columns))
 	for _, column := range columns {
-		l_v := strings.SplitN(column, ":", 2)
-		if len(l_v) < 2 {
+		lv := strings.SplitN(column, ":", 2)
+		if len(lv) < 2 {
 			continue
 		}
-		label, value := l_v[0], l_v[1]
+		label, value := lv[0], lv[1]
 		lvs[label] = value
 		keys = append(keys, label)
 	}
@@ -121,22 +122,22 @@ func (lltsv *Lltsv) parseLtsv(line string) (map[string]string, []string) {
 }
 
 // Return function pointer to avoid `if` evaluation occurs in each iteration
-func getFuncAppend(no_key bool) tFuncAppend {
-	if no_key {
+func getFuncAppend(noKey bool) tFuncAppend {
+	if noKey {
 		return func(selected []string, label string, value string) []string {
 			return append(selected, value)
 		}
-	} else {
-		if termutil.Isatty(os.Stdout.Fd()) {
-			return func(selected []string, label string, value string) []string {
-				return append(selected, ansi.Color(label, "green")+":"+ansi.Color(value, "magenta"))
-			}
-		} else {
-			// if pipe or redirect
-			return func(selected []string, label string, value string) []string {
-				return append(selected, label+":"+value)
-			}
+	}
+
+	if termutil.Isatty(os.Stdout.Fd()) {
+		return func(selected []string, label string, value string) []string {
+			return append(selected, ansi.Color(label, "green")+":"+ansi.Color(value, "magenta"))
 		}
+	}
+
+	// if pipe or redirect
+	return func(selected []string, label string, value string) []string {
+		return append(selected, label+":"+value)
 	}
 }
 

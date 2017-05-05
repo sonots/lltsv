@@ -8,12 +8,15 @@ import (
 	"strconv"
 )
 
+// Vars is a map for LTSV's label and value.
+type Vars map[string]string
+
+// ExprRunner is an expression runner for Go code.
 type ExprRunner struct {
 	expr ast.Expr
 }
 
-type Vars map[string]string
-
+// ExprContext is a context for ExprRunner.
 type ExprContext struct {
 	vars Vars
 }
