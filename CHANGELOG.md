@@ -1,3 +1,10 @@
+## 0.6.1 (2017/07/14)
+
+Fixes:
+
+* Show compiler version by -v. refs: #19
+* feature: introduced --ignore-key. refs #20
+
 ## 0.6.0 (2017/04/11)
 
 Fixes:
