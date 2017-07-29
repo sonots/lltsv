@@ -11,6 +11,7 @@ build:
 	go build
 
 test: deps
+	go get -u github.com/stretchr/testify/...
 	go test -v ./...
 
 install: deps
