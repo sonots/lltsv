@@ -93,7 +93,7 @@ func (lltsv *Lltsv) restructLtsv(lvs map[string]string, keys []string) string {
 		orders = keys
 	}
 	// make slice with enough capacity so that append does not newly create object
-	// cf. http://golang.org/pkg/builtin/#append
+	// cf. https://golang.org/pkg/builtin/#append
 	selected := make([]string, 0, len(orders))
 	for _, label := range orders {
 		if _, ok := lltsv.ignoreKeyMap[label]; ok {
