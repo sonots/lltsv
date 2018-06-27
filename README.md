@@ -65,6 +65,15 @@ Evaluate value with "-e" option. Available operators are:
   + - * / (arithmetic (float64))
 ```
 
+Grep period in common log format(common log or ISO 8610) "-t" option. Available operators are:
+
+Example6:
+
+```bash
+$ lltsv -t 'localtime=01/Jun/2018:00:00:00 +0900~30/Mar/2018:23:59:59 +0900,common' access_log
+$ lltsv -t 'localtime=2018-01-01T00:00:00+0900~2018-03-30T23:59:59+0900,iso8610' access_log
+```
+
 **How Useful?**
 
 LTSV format is not `awk` friendly (I think), but `lltsv` can help it: 
