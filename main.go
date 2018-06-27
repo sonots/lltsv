@@ -53,6 +53,11 @@ func main() {
 
 	  + - * / (arithmetic (float64))
 
+	Grep period in common log format(common log or ISO 8610) "-t" option. Available operators are:
+
+	Example6 $ lltsv -t 'localtime=01/Jun/2018:00:00:00 +0900~30/Mar/2018:23:59:59 +0900,common' access_log
+	         $ lltsv -t 'localtime=2018-01-01T00:00:00+0900~2018-03-30T23:59:59+0900,iso8610' access_log
+
 	Homepage: https://github.com/sonots/lltsv`
 	app.Author = "sonots"
 	app.Email = "sonots@gmail.com"
@@ -76,6 +81,10 @@ func main() {
 		cli.StringSliceFlag{
 			Name:  "expr, e",
 			Usage: "evaluate value by expression to output",
+		},
+		cli.StringSliceFlag{
+			Name:  "timegrep, t",
+			Usage: "grep period of time in common log format or iso8601",
 		},
 	}
 	app.Action = doMain
@@ -102,6 +111,7 @@ func doMain(c *cli.Context) error {
 	noKey := c.Bool("no-key")
 	filters := c.StringSlice("filter")
 	exprs := c.StringSlice("expr")
+	timegrep := c.StringSlice("timegrep")
 
 	ignoreKeys := make([]string, 0, 0)
 	// If -k,--key is specified, -i,--ignore-key is ignored.
@@ -109,7 +119,7 @@ func doMain(c *cli.Context) error {
 		ignoreKeys = strings.Split(c.String("ignore-key"), ",")
 	}
 
-	lltsv := newLltsv(keys, ignoreKeys, noKey, filters, exprs)
+	lltsv := newLltsv(keys, ignoreKeys, noKey, filters, exprs, timegrep)
 
 	if len(c.Args()) > 0 {
 		for _, filename := range c.Args() {
