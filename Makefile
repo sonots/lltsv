@@ -1,29 +1,21 @@
 DEBUG_FLAG = $(if $(DEBUG),-debug)
 
-deps:
-	go get github.com/andrew-d/go-termutil/...
-	go get github.com/urfave/cli/...
-	go get github.com/mgutz/ansi/...
-	go get -u github.com/golang/lint/golint
-	go get -d -t ./...
-
 build:
-	go build
+	GO111MODULE=on go build
 
-test: deps
-	go get -u github.com/stretchr/testify/...
-	go test -v ./...
+test:
+	GO111MODULE=on go test -v ./...
 
-install: deps
-	go install
+install:
+	GO111MODULE=on go install
 
 fmt:
-	go fmt ./...
+	GO111MODULE=on go fmt ./...
 
 lint:
 	golint .
 
-pkg: deps
+pkg:
 	go get github.com/mitchellh/gox/...
 	go get github.com/tcnksm/ghr
 	mkdir -p pkg && cd pkg && gox ../...
