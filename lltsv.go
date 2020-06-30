@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/andrew-d/go-termutil"
+	"github.com/mattn/go-isatty"
 	"github.com/mgutz/ansi"
 )
 
@@ -129,7 +129,7 @@ func getFuncAppend(noKey bool) tFuncAppend {
 		}
 	}
 
-	if termutil.Isatty(os.Stdout.Fd()) {
+	if isatty.IsTerminal(os.Stdout.Fd()) {
 		return func(selected []string, label string, value string) []string {
 			return append(selected, ansi.Color(label, "green")+":"+ansi.Color(value, "magenta"))
 		}
