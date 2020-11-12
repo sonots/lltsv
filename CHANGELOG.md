@@ -1,3 +1,12 @@
+## 0.7.0 (2020/11/12)
+
+Enhancements:
+
+* Use mattn-isatty instead of andrew-d/go-termutil #28
+* Introduce Go Modules #27
+* Use https instead of http in comment. #24
+* Add tests. #23
+
 ## 0.6.1 (2017/07/14)
 
 Fixes:
