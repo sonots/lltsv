@@ -131,7 +131,7 @@ func getFuncAppend(noKey bool) tFuncAppend {
 
 	if isatty.IsTerminal(os.Stdout.Fd()) {
 		return func(selected []string, label string, value string) []string {
-			return append(selected, ansi.Color(label, "green")+":"+ansi.Color(value, "magenta"))
+			return append(selected, ansi.Color(label, "white+bh:green")+":"+ansi.Color(value, "white+bh:magenta"))
 		}
 	}
 
