@@ -151,29 +151,41 @@ func getFuncFilters(filters []string) map[string]tFuncFilter {
 		key := token[0]
 		switch token[1] {
 		case ">", ">=", "<=", "<":
-			r, err := strconv.ParseFloat(token[2], 64)
-			if err != nil {
-				log.Fatal(err)
-			}
-
 			funcFilters[key] = func(val string) bool {
-				num, err := strconv.ParseFloat(val, 64)
-				if err != nil {
-					log.Println(err)
-					return false
+				keyMap := map[string]map[string]bool{}
+				keyMap[key] = map[string]bool{}
+				keyMap[key][val] = true
+				for _, f := range filters {
+					subtoken := strings.SplitN(f, " ", 3)
+					if len(subtoken) < 3 {
+						log.Fatalf("filter expression is invalid: %s\n", f)
+					}
+					if subtoken[0] != key {
+						continue
+					}
+					num, err := strconv.ParseFloat(val, 64)
+					if err != nil {
+						log.Println(err)
+						return false
+					}
+					r, err := strconv.ParseFloat(subtoken[2], 64)
+					if err != nil {
+						log.Fatal(err)
+					}
+					switch subtoken[1] {
+					case ">":
+						keyMap[key][val] = keyMap[key][val] && (num > r)
+					case ">=":
+						keyMap[key][val] = keyMap[key][val] && (num >= r)
+					case "<=":
+						keyMap[key][val] = keyMap[key][val] && (num <= r)
+					case "<":
+						keyMap[key][val] = keyMap[key][val] && (num < r)
+					default:
+						keyMap[key][val] = keyMap[key][val] && false
+					}
 				}
-				switch token[1] {
-				case ">":
-					return num > r
-				case ">=":
-					return num >= r
-				case "<=":
-					return num <= r
-				case "<":
-					return num < r
-				default:
-					return false
-				}
+				return keyMap[key][val]
 			}
 		case "==":
 			funcFilters[key] = func(val string) bool {
