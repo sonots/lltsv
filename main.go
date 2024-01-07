@@ -122,7 +122,7 @@ func doMain(c *cli.Context) error {
 			err = lltsv.scanAndWrite(file)
 			file.Close()
 			if err != nil {
-				os.Stderr.WriteString("reading input errored\n")
+				os.Stderr.WriteString("failed to process `" + filename + "`.\n")
 				exitCode = 1
 				return err
 			}
@@ -132,7 +132,7 @@ func doMain(c *cli.Context) error {
 		err := lltsv.scanAndWrite(file)
 		file.Close()
 		if err != nil {
-			os.Stderr.WriteString("reading input errored\n")
+			os.Stderr.WriteString("failed to process stdin.\n")
 			exitCode = 1
 			return err
 		}
